@@ -4,31 +4,41 @@ import 'dotenv/config'
 import * as sql from 'mssql'
 
 const app = express()
+
+// Process .env config
 const envVariables = z.object({
   PORT: z.string(),
+  DB_DATABASE: z.string(),
+  DB_SERVER: z.string(),
+  DB_USER: z.string(),
+  DB_PASSWORD: z.string(),
 })
 const env = envVariables.parse(process.env)
+
+// Express configs and middlewear
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // DB
-const testDB = async () => {
-  console.log('data function called')
-  try {
-    await sql.connect(
-      'Server=localhost,1433;Database=Dev;User Id=sa;Password=Yauco4020!;trustServerCertificate=true',
-    )
-    const result = await sql.query`select * from uvw_person`
-    console.log('data function successfully called')
-    return result
-  } catch (err) {
-    console.error(`Error: ${err}`)
-  }
+const dbConfig = {
+  database: env.DB_DATABASE,
+  server: env.DB_SERVER,
+  user: env.DB_USER,
+  password: env.DB_PASSWORD,
+  pool: {
+    min: 0,
+    max: 10,
+  },
+  options: {
+    trustServerCertificate: true,
+  },
 }
+
 // Routes
 app.get('/', async (req: Request, res: Response) => {
-  const response = await testDB()
-  return res.send(`${JSON.stringify(response)}`)
+  await sql.connect(dbConfig)
+  const response = await sql.query`select * from uvw_person`
+  return res.send(`${JSON.stringify(response.recordset)}`)
 })
 
 app.listen(env.PORT, () => {
