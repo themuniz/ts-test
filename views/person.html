@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% set title = "Grizzly: Persons" %}
+{% block content
+    %}
+    <div class="container">
+        <h1 class="text-3xl">Persons</h1>
+        <main>
+            <div id="form"></div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>First name</th>
+                        <th>Last name</th>
+                        <th>Email</th>
+                        <th>EMPLID</th>
+                    </tr>
+                </thead>
+                <tbody id="person-table">
+                    {% for person in data %}
+                        <tr>
+                            <td>{{ person.first_name }}</td>
+                            <td>{{ person.last_name }}</td>
+                            <td>
+                                {{ person.email }}<span class="text-primary"><i class="ml-1 bi bi-clipboard"></i><i class="ml-1 bi bi-envelope"></i>
+                            </td>
+                        </span>
+                        <td>
+                            {{ person.emplid }}<i class="ml-1 bi bi-clipboard"></i>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+</div>
+{% endblock %}
