@@ -3,6 +3,7 @@ import { z } from 'zod'
 import 'dotenv/config'
 import * as sql from 'mssql'
 import nunjucks from 'nunjucks'
+import * as gravatar from 'gravatar'
 
 const app = express()
 
@@ -46,8 +47,15 @@ const dbConfig = {
 // Routes
 app.get('/', async (req: Request, res: Response) => {
   await sql.connect(dbConfig)
-  const response = await sql.query`select * from uvw_person order by last_name`
-  return res.render('person.html', { data: response.recordset })
+  const response =
+    await sql.query`select * from uvw_person order by last_name`
+  // TODO: load this into DB, and then only run if profile_image_url is null
+  const data = response.recordset.map((record) => {
+    const url = gravatar.url(record.email)
+    record.profile_image_url = url
+    return record
+  })
+  return res.render('person.html', { data: data })
 })
 
 app.listen(env.PORT, () => {
