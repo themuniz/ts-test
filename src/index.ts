@@ -47,15 +47,24 @@ const dbConfig = {
 // Routes
 app.get('/', async (req: Request, res: Response) => {
   await sql.connect(dbConfig)
+  let page = 1
+  let offset = 0
+  if (req.query.page){
+    const pageAsString = String(req.query.page)
+    page = parseInt(pageAsString)
+  }
+  if (page > 1) {
+    offset = (page * 50) - 50
+  }
   const response =
-    await sql.query`select * from uvw_person order by last_name`
-  // TODO: load this into DB, and then only run if profile_image_url is null
+    await sql.query`select * from uvw_person order by last_name offset ${offset} rows fetch next 50 rows only`
   const data = response.recordset.map((record) => {
     const url = gravatar.url(record.email)
     record.profile_image_url = url
     return record
   })
-  return res.render('person.html', { data: data })
+  const recordCount = data.length
+  return res.render('person.html', { data: data, page, recordCount })
 })
 
 app.listen(env.PORT, () => {
