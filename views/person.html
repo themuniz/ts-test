@@ -1,95 +1,64 @@
-{% extends 'base.html' %} {% set title = "Grizzly: Persons" %} {% block content
-%}
-<div
-    x-data="pageUtils"
-    class="container mx-auto mt-4 max-w-lg overflow-x-auto p-1 sm:max-w-xl md:max-w-2xl lg:max-w-3xl"
->
-    <div class="mtb-5 mb-5 text-3xl font-semibold">Persons</div>
-    <div
-        x-cloak
-        x-show="showToast"
-        class="duration-400 ease fixed bottom-4 right-4 h-32 w-72 transform-gpu rounded bg-slate-700 p-4 transition-transform"
-        :class="toastType === 'success' ? 'border-l-8 border-green-500' : 'bg-red-400'"
-        x-transition:enter-start="translate-y-full"
-        x-transition:enter-end="translate-y-0"
-        x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-    >
-        <p class="text-white">
-            <span
-                class="font-semibold uppercase leading-relaxed"
-                x-text="toastTitle"
-            ></span>
-        </p>
-        <p class="mt-2 text-sm text-white" x-text="toastMessage"></p>
+{% extends 'base.html' %} {% set title = "Grizzly: Persons" %}
+{% block content
+    %}
+    <div x-data="pageUtils"
+         class="container overflow-x-auto p-1 mx-auto mt-4 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+        <div class="mb-5 text-3xl font-semibold mtb-5">Persons</div>
+        <div x-cloak
+             x-show="showToast"
+             class="fixed right-4 bottom-4 p-4 w-72 h-32 rounded transition-transform transform-gpu duration-400 ease bg-slate-700"
+             :class="toastType === 'success' ? 'border-l-8 border-green-500' : 'border-l-8 border-red-500'"
+             x-transition:enter-start="translate-y-full"
+             x-transition:enter-end="translate-y-0"
+             x-transition:leave-start="translate-y-0"
+             x-transition:leave-end="translate-y-full">
+            <p class="text-white">
+                <span class="font-semibold leading-relaxed uppercase" x-text="toastTitle"></span>
+            </p>
+            <p class="mt-2 text-sm text-white" x-text="toastMessage"></p>
+        </div>
+        <div class="overflow-auto p-5 mx-5 bg-white rounded-md border border-gray-300">
+            <div class="flex items-center space-x-2 text-lg">
+                <label for="name">Search</label>
+                <input id="search"
+                       name="search"
+                       type="search"
+                       class="p-1 w-1/2 rounded-md border border-gray-300 form-input" />
+            </div>
+            <!-- Pagination -->
+            <div class="flex justify-end space-x-1"></div>
+            <table class="w-full table-auto">
+                <tbody id="person-table" class="divide-y">
+                    {% for person in data %}
+                        <tr>
+                            <td class="flex py-4 space-x-2">
+                                <img src="{{ person.profile_image_url }}"
+                                     alt="{{ person.first_name }} {{ person.last_name }}'s avatar"
+                                     class="w-11 h-11 rounded-full" />
+                                <div>
+                                    {{ person.first_name }} {{ person.last_name }}
+                                    <div class="flex space-x-1 items-center -mt-2 text-blue-500">
+                                        <a class="hover:underline" href="mailto:{{ person.email }}">{{ person.email }}</a><i @click="copyToClipboard('{{ person.email }}')"
+   class="p-1 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-2 text-right">
+                                <span>
+                                {{ person.emplid }}
+                            </span><i @click="copyToClipboard('{{ person.emplid }}')"
+   class="p-1 text-blue-500 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="flex justify-end space-x-1">
+                <a class="p-1 text-blue-500 hover:font-semibold hover:underline"><i class="bi bi-arrow-left"></i>Previous</a>
+            <a class="p-1 text-blue-500 hover:font-semibold hover:underline">Next<i class="bi bi-arrow-right"></i>
+        </a>
     </div>
-    <div class="overflow-auto rounded-md border border-gray-300 bg-white p-5">
-        <div class="flex items-center space-x-1 text-lg">
-            <label for="name">Search</label>
-            <input
-                id="search"
-                name="search"
-                type="search"
-                class="form-input w-1/2 rounded-md border border-gray-300 p-1 md:w-1/3"
-            />
-        </div>
-        <div class="flex justify-end space-x-1">
-            {% if page > 1 %}
-            <a
-                href="http://localhost:40201/?page={{ page - 1 }}"
-                class="p-1 text-blue-500 hover:font-semibold hover:underline"
-                ><i class="bi bi-arrow-left"></i>Previous</a
-            >
-            {% endif %} {% if recordCount > 49 %}
-            <a
-                href="http://localhost:40201/?page={{ page + 1 }}"
-                class="p-1 text-blue-500 hover:font-semibold hover:underline"
-                >Next<i class="bi bi-arrow-right"></i>
-                {% endif %}
-            </a>
-        </div>
-        <table class="w-full table-auto">
-            <tbody id="person-table" class="divide-y">
-                {% for person in data %}
-                <tr>
-                    <td class="flex space-x-2 py-4">
-                        <img
-                            src="{{ person.profile_image_url }}"
-                            alt="{{ person.first_name }} {{ person.last_name }}'s avatar"
-                            class="h-11 w-11 rounded-full"
-                        />
-                        <div>
-                            {{ person.first_name }} {{ person.last_name }}
-                            <div class="-mt-1 text-sm text-gray-500">
-                                {{ person.email }}<span
-                                    class="ml-1 text-blue-500"
-                                    ><i
-                                        @click="copyToClipboard('{{ person.email }}')"
-                                        class="bi bi-clipboard rounded p-1 transition ease-in-out hover:bg-gray-100"
-                                    ></i
-                                ></span>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="py-2 text-right">
-                        {{ person.emplid }}<i
-                            @click="copyToClipboard('{{ person.emplid }}')"
-                            class="bi bi-clipboard ml-1 rounded p-1 text-sm text-blue-500 transition ease-in-out hover:bg-gray-100"
-                        ></i>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="flex justify-end space-x-1">
-            <a class="p-1 text-blue-500 hover:font-semibold hover:underline"
-                ><i class="bi bi-arrow-left"></i>Previous</a
-            >
-            <a class="p-1 text-blue-500 hover:font-semibold hover:underline"
-                >Next<i class="bi bi-arrow-right"></i>
-            </a>
-        </div>
-    </div>
+</div>
 </div>
 <script>
     document.addEventListener('alpine:init', () => {
