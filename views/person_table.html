@@ -1,0 +1,50 @@
+{% import "includes/macros.html" as m %}
+<div class="pb-4 md:flex md:justify-between">
+    <div class="flex items-center py-3 space-x-2 text-lg">
+        <label for="search">Search</label>
+        <input id="search"
+               name="search"
+               type="search"
+               class="p-1 rounded-md border border-gray-300 form-input" />
+    </div>
+    <div class="flex items-center space-x-2 text-lg md:py-3">
+        <label for="limit">Records per page</label>
+        <select id="limit"
+                name="limit"
+                class="p-1 rounded-md border border-gray-300 form-input"
+                x-model="limit"
+                hx-get="http://localhost:40201/?page=1"
+                hx-include="[name='search']"
+                hx-target="#person-table">
+            <option value="10">10</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+</div>
+<div class="flex justify-end space-x-1 text-center">{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
+<table class="w-full table-auto">
+    <tbody class="divide-y">
+        {% for person in data %}
+            <tr>
+                <td class="flex py-4 space-x-2">
+                    <img src="{{ person.profile_image_url }}"
+                         alt="{{ person.first_name }} {{ person.last_name }}'s avatar"
+                         class="w-11 h-11 rounded-full" />
+                    <div>
+                        {{ person.first_name }} {{ person.last_name }}
+                        <div class="flex items-center -mt-2 space-x-1 text-blue-500">
+                            <a class="hover:underline" href="mailto:{{ person.email }}">{{ person.email }}</a><i @click="copyToClipboard('{{ person.email }}')"
+   class="p-1 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
+                        </div>
+                    </div>
+                </td>
+                <td class="py-2 text-right">
+                    <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
+   class="p-1 text-blue-500 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<div class="flex justify-end space-x-1 text-center">{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>

@@ -1,0 +1,18 @@
+{% macro pagination(page, reachedEnd) %}
+    {% if page > 1 %}
+        <button hx-get="http://localhost:40201/?page={{ page - 1 }}"
+                hx-target="#person-table"
+                hx-include="[name='limit'],[name='search']"
+                class="p-1 w-24 text-blue-500 rounded-md border border-blue-500 hover:bg-blue-100">
+            <i class="bi bi-arrow-left"></i>Previous
+        </button>
+    {% endif %}
+    {% if reachedEnd == false %}
+        <button hx-get="http://localhost:40201/?page={{ page + 1 }}"
+                hx-target="#person-table"
+                hx-include="[name='limit'],[name='search']"
+                class="p-1 w-24 text-blue-500 rounded-md border border-blue-500 hover:bg-blue-100">
+            Next<i class="bi bi-arrow-right"></i>
+        </button>
+    {% endif %}
+{% endmacro %}
