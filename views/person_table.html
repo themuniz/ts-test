@@ -5,6 +5,7 @@
         <input id="search"
                name="search"
                type="search"
+               value="{{metadata.searchTerm}}"
                class="p-1 rounded-md border border-gray-300 form-input" />
     </div>
     <div class="flex items-center space-x-2 text-lg md:py-3">
@@ -12,7 +13,7 @@
         <select id="limit"
                 name="limit"
                 class="p-1 rounded-md border border-gray-300 form-input"
-                x-model="limit"
+                x-model="limit" 
                 hx-get="http://localhost:40201/?page=1"
                 hx-include="[name='search']"
                 hx-target="#person-table">
