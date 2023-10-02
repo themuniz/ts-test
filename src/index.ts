@@ -7,9 +7,9 @@ import * as gravatar from 'gravatar'
 
 const app = express()
 
-// Process .env config
+// Config type
 const envVariables = z.object({
-  NODE_ENV: z.enum(["production", "development", "testing"]),
+  NODE_ENV: z.enum(['production', 'development', 'testing']),
   PORT: z.coerce.number(),
   DB_DATABASE: z.string(),
   DB_SERVER: z.string(),
@@ -44,32 +44,74 @@ const dbConfig = {
   },
 }
 
+// Search type
+const PersonSearchMetadata = z.object({
+  page: z.number().default(1),
+  offset: z.number().default(0),
+  limit: z.number().default(10),
+  reachedEnd: z.boolean().default(false),
+  searchTerm: z.string().default(''),
+  partialRender: z.boolean().default(false),
+  recordCount: z.number().default(0),
+})
+
+type PersonSearchMetadata = z.infer<typeof PersonSearchMetadata>
+
 // Routes
 app.get('/', async (req: Request, res: Response) => {
   await sql.connect(dbConfig)
-  let page = 1
-  let offset = 0
-  let limit = 50
+  const metadata: PersonSearchMetadata = {
+    page: 1,
+    offset: 0,
+    limit: 10,
+    reachedEnd: false,
+    searchTerm: '',
+    partialRender: false,
+    recordCount: 0,
+  }
   if (req.query.page) {
     const pageAsString = String(req.query.page)
-    page = parseInt(pageAsString)
+    metadata.page = parseInt(pageAsString)
   }
   if (req.query.limit) {
     const limitAsString = String(req.query.limit)
-    limit = parseInt(limitAsString)
+    metadata.limit = parseInt(limitAsString)
   }
-  if (page > 1) {
-    offset = (page * limit) - limit
+  if (req.query.search) {
+    metadata.searchTerm = String(req.query.search)
+  }
+  if (metadata.page > 1) {
+    metadata.offset = metadata.page * metadata.limit - metadata.limit
   }
   const response =
-    await sql.query`select * from uvw_person order by last_name offset ${offset} rows fetch next ${limit} rows only`
-  const data = response.recordset.map((record) => {
+    await sql.query`select * from uvw_person order by last_name offset ${metadata.offset
+      } rows fetch next ${metadata.limit + 1} rows only`
+  let data = response.recordset.map((record) => {
     const url = gravatar.url(record.email)
     record.profile_image_url = url
     return record
   })
-  const recordCount = data.length
-  return res.render('person.html', { data: data, page, recordCount, limit })
+  metadata.recordCount = data.length
+
+  if (data.length <= metadata.limit) {
+    metadata.reachedEnd = true
+  } else {
+    // We search for one more record than we need to test if we are at the end of the collection, therefore we have to remove the last record if we *aren't* at the end of the collection
+    data = data.slice(0, -1)
+    metadata.recordCount = metadata.recordCount - 1
+  }
+  if (req.header('hx-request')) {
+    metadata.partialRender = true
+    return res.render('person_table.html', {
+      data,
+      metadata,
+    })
+  } else {
+    return res.render('person.html', {
+      data,
+      metadata,
+    })
+  }
 })
 
 app.listen(env.PORT, () => {
