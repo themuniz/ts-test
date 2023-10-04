@@ -69,6 +69,7 @@ app.get('/', async (req: Request, res: Response) => {
     partialRender: false,
     recordCount: 0,
   }
+  // TODO: move to validation stage
   if (req.query.page) {
     const pageAsString = String(req.query.page)
     metadata.page = parseInt(pageAsString)
@@ -83,9 +84,15 @@ app.get('/', async (req: Request, res: Response) => {
   if (metadata.page > 1) {
     metadata.offset = metadata.page * metadata.limit - metadata.limit
   }
-  const response =
-    await sql.query`select * from uvw_person order by last_name offset ${metadata.offset
-      } rows fetch next ${metadata.limit + 1} rows only`
+  let response
+  if (metadata.searchTerm === '') {
+    response =
+      await sql.query`select * from uvw_person order by last_name offset ${metadata.offset
+        } rows fetch next ${metadata.limit + 1} rows only`
+  } else {
+    response =
+      await sql.query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm}, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
+  }
   let data = response.recordset.map((record) => {
     const url = gravatar.url(record.email)
     record.profile_image_url = url
