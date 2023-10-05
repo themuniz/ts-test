@@ -28,23 +28,27 @@
     </div>
 </div>
 <div class="flex justify-end space-x-1 text-center">{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
-<table class="w-full table-auto">
+<table class="w-full table-fixed">
     <tbody class="divide-y">
         {% for person in data %}
             <tr>
-                <td class="flex py-4 space-x-2">
+                <td class="flex py-4 items-center space-x-2">
                     <img src="{{ person.profile_image_url }}"
                          alt="{{ person.first_name }} {{ person.last_name }}'s avatar"
                          class="w-11 h-11 rounded-full" />
                     <div>
                         {{ person.first_name }} {{ person.last_name }}
-                        <div class="flex items-center -mt-2 space-x-1 text-blue-500">
+                        <div class="flex items-center -mt-2 text-blue-500">
                             <a class="hover:underline" href="mailto:{{ person.email }}">{{ person.email }}</a><i @click="copyToClipboard('{{ person.email }}')"
    class="p-1 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
                         </div>
+                        <div class="sm:hidden -mt-2">
+                            <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
+   class="p-1 text-blue-500 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
+                        </div>
                     </div>
                 </td>
-                <td class="py-2 text-right">
+                <td class="hidden py-2 text-right sm:table-cell">
                     <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
    class="p-1 text-blue-500 rounded transition ease-in-out hover:bg-gray-100 bi bi-clipboard"></i>
                 </td>
