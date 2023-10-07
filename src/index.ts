@@ -72,9 +72,6 @@ app.get('/', async (req: Request, res: Response) => {
     partialRender: false,
     recordCount: 0,
   }
-  log.debug(`Req query: ${JSON.stringify(req.query)}`)
-  log.debug(`Req params: ${JSON.stringify(req.params)}`)
-  log.debug(`Req body: ${JSON.stringify(req.body)}`)
   // TODO: move to validation stage
   if (req.query.page) {
     const pageAsString = String(req.query.page)
