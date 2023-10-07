@@ -4,6 +4,7 @@ import 'dotenv/config'
 import * as sql from 'mssql'
 import nunjucks from 'nunjucks'
 import * as gravatar from 'gravatar'
+import log from './logger'
 
 const app = express()
 
@@ -17,6 +18,7 @@ const envVariables = z.object({
   DB_PASSWORD: z.string(),
 })
 const env = envVariables.parse(process.env)
+log.info('Processed configuration from envirnoment variables')
 
 // Express configs and middleware
 app.use(express.json())
@@ -60,6 +62,7 @@ type PersonSearchMetadata = z.infer<typeof PersonSearchMetadata>
 // Routes
 app.get('/', async (req: Request, res: Response) => {
   await sql.connect(dbConfig)
+  log.info(`Database connection successful: ${env.DB_DATABASE}@${env.DB_SERVER}`)
   const metadata: PersonSearchMetadata = {
     page: 1,
     offset: 0,
@@ -69,6 +72,9 @@ app.get('/', async (req: Request, res: Response) => {
     partialRender: false,
     recordCount: 0,
   }
+  log.debug(`Req query: ${JSON.stringify(req.query)}`)
+  log.debug(`Req params: ${JSON.stringify(req.params)}`)
+  log.debug(`Req body: ${JSON.stringify(req.body)}`)
   // TODO: move to validation stage
   if (req.query.page) {
     const pageAsString = String(req.query.page)
@@ -109,11 +115,15 @@ app.get('/', async (req: Request, res: Response) => {
   }
   if (req.header('hx-request')) {
     metadata.partialRender = true
+    log.debug(JSON.stringify(data))
+    log.debug(JSON.stringify(metadata))
     return res.render('person_table.html', {
       data,
       metadata,
     })
   } else {
+    log.debug(JSON.stringify(data))
+    log.debug(JSON.stringify(metadata))
     return res.render('person.html', {
       data,
       metadata,
@@ -122,5 +132,5 @@ app.get('/', async (req: Request, res: Response) => {
 })
 
 app.listen(env.PORT, () => {
-  console.log(`Started on port ${env.PORT}`)
+  log.info(`Server started on port ${env.PORT}`)
 })
