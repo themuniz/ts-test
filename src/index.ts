@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
-import * as sql from 'mssql'
 import nunjucks from 'nunjucks'
 import * as gravatar from 'gravatar'
 import log from './logger'
+import * as sql from 'mssql'
+import { PersonRecord } from './person_types'
+import { PersonRouter } from './person_routes'
 
 const app = express()
 
@@ -31,7 +33,13 @@ nunjucks.configure('views', {
   noCache: env.NODE_ENV === 'production' ? false : true,
 })
 
-// DB
+// Routes
+app.use('/person', PersonRouter)
+
+// Server startup
+// We attempt to connect to the DB pool, store the pool in the app's locals, and then use that *single* pool throughout the life-cycle of the app
+
+// DB config
 const dbConfig = {
   database: env.DB_DATABASE,
   server: env.DB_SERVER,
@@ -45,89 +53,21 @@ const dbConfig = {
     trustServerCertificate: true,
   },
 }
-
-// Search type
-const PersonSearchMetadata = z.object({
-  page: z.number().default(1),
-  offset: z.number().default(0),
-  limit: z.number().default(10),
-  reachedEnd: z.boolean().default(false),
-  searchTerm: z.string().default(''),
-  partialRender: z.boolean().default(false),
-  recordCount: z.number().default(0),
-})
-
-type PersonSearchMetadata = z.infer<typeof PersonSearchMetadata>
-
-// Routes
-app.get('/', async (req: Request, res: Response) => {
-  await sql.connect(dbConfig)
-  log.info(`Database connection successful: ${env.DB_DATABASE}@${env.DB_SERVER}`)
-  const metadata: PersonSearchMetadata = {
-    page: 1,
-    offset: 0,
-    limit: 10,
-    reachedEnd: false,
-    searchTerm: '',
-    partialRender: false,
-    recordCount: 0,
-  }
-  // TODO: move to validation stage
-  if (req.query.page) {
-    const pageAsString = String(req.query.page)
-    metadata.page = parseInt(pageAsString)
-  }
-  if (req.query.limit) {
-    const limitAsString = String(req.query.limit)
-    metadata.limit = parseInt(limitAsString)
-  }
-  if (req.query.search) {
-    metadata.searchTerm = String(req.query.search)
-  }
-  if (metadata.page > 1) {
-    metadata.offset = metadata.page * metadata.limit - metadata.limit
-  }
-  let response
-  if (metadata.searchTerm === '') {
-    response =
-      await sql.query`select * from uvw_person order by last_name offset ${metadata.offset
-        } rows fetch next ${metadata.limit + 1} rows only`
-  } else {
-    response =
-      await sql.query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm}, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
-  }
-  let data = response.recordset.map((record) => {
-    const url = gravatar.url(record.email)
-    record.profile_image_url = url
-    return record
+// TODO: refactor this into a proper function
+const appPool = new sql.ConnectionPool(dbConfig)
+appPool
+  .connect()
+  .then(function(pool) {
+    app.locals.db = pool
+    log.info(`Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
+    app.listen(env.PORT, () => {
+      log.info(`Server started on port ${env.PORT}`)
+    })
   })
-  metadata.recordCount = data.length
-
-  if (data.length <= metadata.limit) {
-    metadata.reachedEnd = true
-  } else {
-    // We search for one more record than we need to test if we are at the end of the collection, therefore we have to remove the last record if we *aren't* at the end of the collection
-    data = data.slice(0, -1)
-    metadata.recordCount = metadata.recordCount - 1
-  }
-  if (req.header('hx-request')) {
-    metadata.partialRender = true
-    log.debug(JSON.stringify(data))
-    log.debug(JSON.stringify(metadata))
-    return res.render('person_table.html', {
-      data,
-      metadata,
-    })
-  } else {
-    log.debug(JSON.stringify(data))
-    log.debug(JSON.stringify(metadata))
-    return res.render('person.html', {
-      data,
-      metadata,
-    })
-  }
-})
-
-app.listen(env.PORT, () => {
-  log.info(`Server started on port ${env.PORT}`)
-})
+  .catch(function(err) {
+    if (err.name === 'ConnectionError') {
+      log.error(`Error connecting to database: ${err}`)
+    } else {
+      log.error(`Error starting server on port ${env.PORT}, ${err}`)
+    }
+  })
