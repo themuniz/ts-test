@@ -2,10 +2,8 @@ import express, { Request, Response } from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
 import nunjucks from 'nunjucks'
-import * as gravatar from 'gravatar'
 import log from './logger'
 import * as sql from 'mssql'
-import { PersonRecord } from './person_types'
 import { PersonRouter } from './person_routes'
 
 const app = express()
@@ -21,6 +19,7 @@ const envVariables = z.object({
 })
 const env = envVariables.parse(process.env)
 log.info('Processed configuration from envirnoment variables')
+log.debug(`${JSON.stringify(env)}`)
 
 // Express configs and middleware
 app.use(express.json())
