@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express'
+import express from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
 import nunjucks from 'nunjucks'
@@ -8,7 +8,7 @@ import { PersonRouter } from './person_routes'
 
 const app = express()
 
-// Config type
+// Config schema
 const envVariables = z.object({
   NODE_ENV: z.enum(['production', 'development', 'testing']),
   PORT: z.coerce.number(),

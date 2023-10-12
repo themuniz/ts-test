@@ -40,7 +40,7 @@
                         {{ person.first_name }} {{ person.last_name }}
                         <div class="flex items-center -mt-2 text-blue-500">
                             <a class="hover:underline" href="mailto:{{ person.email }}">{{ person.email }}</a><i @click="copyToClipboard('{{ person.email }}')"
-   class="p-1 rounded-md transition ease-in-out hover:bg-blue-100 bi bi-clipboard"></i>
+   class="p-1 rounded-md transition ease-in-out hover:bg-blue-100 bi-clipboard"></i>
                         </div>
                         <div class="-mt-2 sm:hidden">
                             <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
