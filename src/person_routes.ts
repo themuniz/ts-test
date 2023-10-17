@@ -1,7 +1,7 @@
-import express, { Request, Response, Router } from 'express'
-import log from './logger'
+import express, { type Request, type Response, Router } from 'express'
+import log from './logger.js'
 import * as gravatar from 'gravatar'
-import { type PersonRecord, PersonSearchMetadata } from './person_types'
+import { type PersonRecord, type PersonSearchMetadata } from './person_types.js'
 
 const router: Router = express.Router()
 

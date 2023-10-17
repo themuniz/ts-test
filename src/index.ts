@@ -2,9 +2,9 @@ import express from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
 import nunjucks from 'nunjucks'
-import log from './logger'
-import * as sql from 'mssql'
-import { PersonRouter } from './person_routes'
+import log from './logger.js'
+import sql from 'mssql'
+import { PersonRouter } from './person_routes.js'
 
 const app = express()
 
@@ -16,8 +16,10 @@ const envVariables = z.object({
   DB_SERVER: z.string(),
   DB_USER: z.string(),
   DB_PASSWORD: z.string(),
+  REDIS_SERVER: z.string(),
+  REDIS_PORT: z.coerce.number(),
 })
-const env = envVariables.parse(process.env)
+export const env = envVariables.parse(process.env)
 log.info('Processed configuration from envirnoment variables')
 log.debug(`${JSON.stringify(env)}`)
 
@@ -53,7 +55,8 @@ const dbConfig = {
   },
 }
 // TODO: refactor this into a proper function
-const appPool = new sql.ConnectionPool(dbConfig)
+const { ConnectionPool } = sql
+const appPool = new ConnectionPool(dbConfig)
 appPool
   .connect()
   .then(function(pool) {
