@@ -1,4 +1,16 @@
+import { writeHeapSnapshot } from 'v8'
 import winston from 'winston'
+import Transport from 'winston-transport'
+
+class GrizzlyTransport extends Transport {
+  constructor(opts: object) {
+    super(opts)
+  }
+  log(info: unknown, callback: () => void) {
+    console.log(JSON.stringify(info, null, 2))
+    callback()
+  }
+}
 
 const levels = {
   error: 0,
@@ -14,15 +26,13 @@ const level = () => {
   return isProduction ? 'warn' : 'debug'
 }
 
-const colors = {
-  error: 'red',
-  warn: 'yellow',
-  info: 'green',
-  http: 'magenta',
-  debug: 'white',
-}
-
-winston.addColors(colors)
+// const colors = {
+//   error: 'red',
+//   warn: 'yellow',
+//   info: 'green',
+//   http: 'magenta',
+//   debug: 'white',
+// }
 
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
@@ -33,12 +43,23 @@ const format = winston.format.combine(
 )
 
 const transports = [
-  new winston.transports.Console(),
+  new winston.transports.Console({
+    format: format,
+  }),
+  new GrizzlyTransport({
+    level: 'info',
+    format: winston.format.combine(
+      winston.format.json(),
+      winston.format.metadata(),
+      winston.format.uncolorize(),
+    ),
+  }),
 ]
 
 const Logger = winston.createLogger({
   level: level(),
   levels,
+  defaultMeta: { service: 'Person' },
   format,
   transports,
 })

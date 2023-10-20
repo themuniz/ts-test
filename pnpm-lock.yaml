@@ -38,6 +38,9 @@ dependencies:
   winston:
     specifier: ^3.10.0
     version: 3.10.0
+  winston-transport:
+    specifier: ^4.6.0
+    version: 4.6.0
   zod:
     specifier: ^3.22.2
     version: 3.22.2
@@ -3759,9 +3762,9 @@ packages:
       isexe: 2.0.0
     dev: true
 
-  /winston-transport@4.5.0:
-    resolution: {integrity: sha512-YpZzcUzBedhlTAfJg6vJDlyEai/IFMIVcaEZZyl3UXIl4gmqRpU7AE89AHLkbzLUsv0NVmw7ts+iztqKxxPW1Q==}
-    engines: {node: '>= 6.4.0'}
+  /winston-transport@4.6.0:
+    resolution: {integrity: sha512-wbBA9PbPAHxKiygo7ub7BYRiKxms0tpfU2ljtWzb3SjRjv5yl6Ozuy/TkXf00HTAt+Uylo3gSkNwzc4ME0wiIg==}
+    engines: {node: '>= 12.0.0'}
     dependencies:
       logform: 2.5.1
       readable-stream: 3.6.2
@@ -3782,7 +3785,7 @@ packages:
       safe-stable-stringify: 2.4.3
       stack-trace: 0.0.10
       triple-beam: 1.4.1
-      winston-transport: 4.5.0
+      winston-transport: 4.6.0
     dev: false
 
   /wrap-ansi@6.2.0:
