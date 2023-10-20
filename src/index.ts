@@ -62,7 +62,9 @@ type PersonSearchMetadata = z.infer<typeof PersonSearchMetadata>
 // Routes
 app.get('/', async (req: Request, res: Response) => {
   await sql.connect(dbConfig)
-  log.info(`Database connection successful: ${env.DB_DATABASE}@${env.DB_SERVER}`)
+  log.info(
+    `Database connection successful: ${env.DB_DATABASE}@${env.DB_SERVER}`,
+  )
   const metadata: PersonSearchMetadata = {
     page: 1,
     offset: 0,
@@ -94,7 +96,8 @@ app.get('/', async (req: Request, res: Response) => {
         } rows fetch next ${metadata.limit + 1} rows only`
   } else {
     response =
-      await sql.query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm}, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
+      await sql.query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm
+        }, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
   }
   let data = response.recordset.map((record) => {
     const url = gravatar.url(record.email)
