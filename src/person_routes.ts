@@ -73,4 +73,21 @@ router.get('/', async (req: Request, res: Response) => {
   }
 })
 
+router.get('/:emplid', async (req: Request, res: Response) => {
+  try {
+    const emplid = req.params.emplid
+    const workshopRecords = await req.app.locals.db
+      .query`select * from uvw_workshop_masterlist where emplid = ${emplid}`
+    const contractRecords = await req.app.locals.db
+      .query`select * from uvw_contracts_extended where emplid = ${emplid}`
+      log.debug('Response: ', contractRecords)
+    return res.render('person_details.html', {
+      workshopRecords: workshopRecords.recordset,
+      contractRecords: contractRecords.recordset,
+    })
+  } catch (err) {
+    console.error(err)
+  }
+})
+
 export { router as PersonRouter }

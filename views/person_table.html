@@ -48,9 +48,13 @@
                         </div>
                     </div>
                 </td>
-                <td class="hidden py-2 text-right sm:table-cell">
-                    <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
+                <td class="flex hidden flex-col py-2 text-right sm:table-cell">
+                    <div>
+                        <span>{{ person.emplid }}</span><i @click="copyToClipboard('{{ person.emplid }}')"
    class="p-1 text-blue-500 rounded transition ease-in-out hover:bg-blue-100 bi bi-clipboard"></i>
+                    </div>
+                    <button class="p-1 text-sm text-blue-500 rounded-md border border-blue-500 hover:bg-blue-100"
+                    @click="slideOverOpen=true" hx-get="http://localhost:40201/person/{{ person.emplid }}" hx-swap="outer" hx-target="#details-div">Details</button>
                 </td>
             </tr>
         {% endfor %}
