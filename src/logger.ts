@@ -6,6 +6,7 @@ class GrizzlyTransport extends Transport {
     super(opts)
   }
   log(info: unknown, callback: () => void) {
+    // TODO: add message to queue
     console.log(JSON.stringify(info, null, 2))
     callback()
   }
