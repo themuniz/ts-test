@@ -1,4 +1,3 @@
-import { writeHeapSnapshot } from 'v8'
 import winston from 'winston'
 import Transport from 'winston-transport'
 
@@ -25,14 +24,6 @@ const level = () => {
   const isProduction = env === 'production'
   return isProduction ? 'warn' : 'debug'
 }
-
-// const colors = {
-//   error: 'red',
-//   warn: 'yellow',
-//   info: 'green',
-//   http: 'magenta',
-//   debug: 'white',
-// }
 
 const format = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
