@@ -5,6 +5,8 @@ import nunjucks from 'nunjucks'
 import log from './logger.js'
 import sql from 'mssql'
 import { PersonRouter } from './person_routes.js'
+import { QuickAddRouter } from './quick_add_router.js'
+import cors from 'cors'
 
 const app = express()
 
@@ -25,6 +27,7 @@ log.debug(`${JSON.stringify(env)}`)
 
 // Express configs and middleware
 app.use(express.json())
+app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('assets'))
 
@@ -36,6 +39,7 @@ nunjucks.configure('views', {
 
 // Routes
 app.use('/person', PersonRouter)
+app.use('/quick-add', QuickAddRouter)
 
 // Server startup
 // We attempt to connect to the DB pool, store the pool in the app's locals, and then use that *single* pool throughout the life-cycle of the app
