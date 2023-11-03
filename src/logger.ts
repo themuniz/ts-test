@@ -23,7 +23,7 @@ const levels = {
 const level = () => {
   const env = process.env.NODE_ENV || 'development'
   const isProduction = env === 'production'
-  return isProduction ? 'warn' : 'debug'
+  return isProduction ? 'info' : 'debug'
 }
 
 const format = winston.format.combine(
