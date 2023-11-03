@@ -23,7 +23,7 @@ const levels = {
 const level = () => {
   const env = process.env.NODE_ENV || 'development'
   const isProduction = env === 'production'
-  return isProduction ? 'warn' : 'debug'
+  return isProduction ? 'info' : 'debug'
 }
 
 const format = winston.format.combine(
@@ -39,7 +39,7 @@ const transports = [
     format: format,
   }),
   new GrizzlyTransport({
-    level: 'info',
+    level: level(),
     format: winston.format.combine(
       winston.format.json(),
       winston.format.metadata(),
@@ -51,7 +51,7 @@ const transports = [
 const Logger = winston.createLogger({
   level: level(),
   levels,
-  defaultMeta: { service: 'Person' },
+  defaultMeta: { server: 'grizzly-ts', node_env: process.env.NODE_ENV},
   format,
   transports,
 })
