@@ -1,4 +1,4 @@
-import express, { type Request, type Response, Router } from 'express'
+import express, { type Request, type Response, Router, type NextFunction} from 'express'
 import log from './logger.js'
 import * as gravatar from 'gravatar'
 import { type PersonRecord, type PersonSearchMetadata } from './person_types.js'
@@ -6,7 +6,7 @@ import { type PersonRecord, type PersonSearchMetadata } from './person_types.js'
 const router: Router = express.Router()
 
 // Routes
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   const metadata: PersonSearchMetadata = {
     page: 1,
     offset: 0,
@@ -32,14 +32,18 @@ router.get('/', async (req: Request, res: Response) => {
     metadata.offset = metadata.page * metadata.limit - metadata.limit
   }
   let response
-  if (metadata.searchTerm === '') {
-    response = await req.app.locals.db
-      .query`select * from uvw_person order by last_name offset ${metadata.offset
-      } rows fetch next ${metadata.limit + 1} rows only`
-  } else {
-    response = await req.app.locals.db
-      .query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm
-      }, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
+  try {
+    if (metadata.searchTerm === '') {
+      response = await req.app.locals.db
+        .query`select * from uvw_person order by last_name offset ${metadata.offset
+        } rows fetch next ${metadata.limit + 1} rows only`
+    } else {
+      response = await req.app.locals.db
+        .query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm
+        }, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
+    }
+  } catch (err) {
+    next(err)
   }
   let data = response.recordset.map((record: PersonRecord) => {
     const url = gravatar.url(record.email)
@@ -80,7 +84,7 @@ router.get('/:emplid', async (req: Request, res: Response) => {
       .query`select * from uvw_workshop_masterlist where emplid = ${emplid}`
     const contractRecords = await req.app.locals.db
       .query`select * from uvw_contracts_extended where emplid = ${emplid}`
-      log.debug('Response: ', contractRecords)
+    log.debug('Response: ', contractRecords)
     return res.render('person_details.html', {
       workshopRecords: workshopRecords.recordset,
       contractRecords: contractRecords.recordset,

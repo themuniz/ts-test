@@ -1,4 +1,8 @@
-import express from 'express'
+import express, {
+  type NextFunction,
+  type Response,
+  type Request,
+} from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
 import nunjucks from 'nunjucks'
@@ -40,6 +44,13 @@ nunjucks.configure('views', {
 // Routes
 app.use('/person', PersonRouter)
 app.use('/quick-add', QuickAddRouter)
+
+// Master error function
+app.use((err, req: Request, res: Response, next: NextFunction) => {
+  const errorMessage = `Encountered an error ${err.name}`
+  log.error(errorMessage, { error_stack: err.stack })
+  res.status(500).send(errorMessage)
+})
 
 // Server startup
 // We attempt to connect to the DB pool, store the pool in the app's locals, and then use that *single* pool throughout the life-cycle of the app
