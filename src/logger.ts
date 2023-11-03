@@ -51,7 +51,7 @@ const transports = [
 const Logger = winston.createLogger({
   level: level(),
   levels,
-  defaultMeta: { service: 'Person' },
+  defaultMeta: { system: 'grizzly-ts' },
   format,
   transports,
 })

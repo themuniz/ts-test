@@ -47,9 +47,11 @@ app.use('/quick-add', QuickAddRouter)
 
 // Master error function
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
-  const errorMessage = `Encountered an error ${err.name}`
-  log.error(errorMessage, { error_stack: err.stack })
-  res.status(500).send(errorMessage)
+  if (err instanceof Error) {
+    const errorMessage = `${err.name}: ${err.message}`
+    log.error(errorMessage, { error_details: err })
+    res.status(500).send(errorMessage)
+  }
 })
 
 // Server startup
