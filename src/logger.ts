@@ -1,13 +1,15 @@
 import winston from 'winston'
 import Transport from 'winston-transport'
+import { Worker } from 'bullmq'
+import 'dotenv/config'
+import { logQueue } from './queues.js'
 
 class GrizzlyTransport extends Transport {
   constructor(opts: object) {
     super(opts)
   }
   log(info: unknown, callback: () => void) {
-    // TODO: add message to queue
-    console.log(JSON.stringify(info, null, 2))
+    logQueue?.add('grizzly-logs', info)
     callback()
   }
 }
@@ -56,4 +58,19 @@ const Logger = winston.createLogger({
   transports,
 })
 
+const worker = new Worker(
+  'grizzly-logs',
+  async (job) => {
+    console.log(JSON.stringify(job.data, null, 2))
+  },
+  {
+    // Normally, we'd use the env that has been cleared by zod, but this gets run before we have a chance to do the zod validation.
+    connection: {
+      host: process.env.REDIS_SERVER,
+      port: Number(process.env.REDIS_PORT),
+    },
+  },
+)
+
+worker.on('ready', () => {console.log('ready')})
 export default Logger
