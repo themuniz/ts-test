@@ -46,7 +46,7 @@ app.use('/person', PersonRouter)
 app.use('/quick-add', QuickAddRouter)
 
 // Master error function
-app.use((err, req: Request, res: Response, next: NextFunction) => {
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
   const errorMessage = `Encountered an error ${err.name}`
   log.error(errorMessage, { error_stack: err.stack })
   res.status(500).send(errorMessage)

@@ -1,4 +1,9 @@
-import express, { type Request, type Response, Router, type NextFunction} from 'express'
+import express, {
+  type Request,
+  type Response,
+  Router,
+  type NextFunction,
+} from 'express'
 import log from './logger.js'
 import * as gravatar from 'gravatar'
 import { type PersonRecord, type PersonSearchMetadata } from './person_types.js'
@@ -42,38 +47,38 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
         .query`exec usp_person_search_with_pagination @search_text = ${metadata.searchTerm
         }, @offset = ${metadata.offset}, @rows = ${metadata.limit + 1}`
     }
+    let data = response.recordset.map((record: PersonRecord) => {
+      const url = gravatar.url(record.email)
+      record.profile_image_url = url
+      return record
+    })
+    metadata.recordCount = data.length
+
+    if (data.length <= metadata.limit) {
+      metadata.reachedEnd = true
+    } else {
+      // We search for one more record than we need to test if we are at the end of the collection, therefore we have to remove the last record if we *aren't* at the end of the collection
+      data = data.slice(0, -1)
+      metadata.recordCount = metadata.recordCount - 1
+    }
+    if (req.header('hx-request')) {
+      metadata.partialRender = true
+      log.debug(JSON.stringify(data))
+      log.debug(JSON.stringify(metadata))
+      return res.render('person_table.html', {
+        data,
+        metadata,
+      })
+    } else {
+      log.debug(JSON.stringify(data))
+      log.debug(JSON.stringify(metadata))
+      return res.render('person.html', {
+        data,
+        metadata,
+      })
+    }
   } catch (err) {
     next(err)
-  }
-  let data = response.recordset.map((record: PersonRecord) => {
-    const url = gravatar.url(record.email)
-    record.profile_image_url = url
-    return record
-  })
-  metadata.recordCount = data.length
-
-  if (data.length <= metadata.limit) {
-    metadata.reachedEnd = true
-  } else {
-    // We search for one more record than we need to test if we are at the end of the collection, therefore we have to remove the last record if we *aren't* at the end of the collection
-    data = data.slice(0, -1)
-    metadata.recordCount = metadata.recordCount - 1
-  }
-  if (req.header('hx-request')) {
-    metadata.partialRender = true
-    log.debug(JSON.stringify(data))
-    log.debug(JSON.stringify(metadata))
-    return res.render('person_table.html', {
-      data,
-      metadata,
-    })
-  } else {
-    log.debug(JSON.stringify(data))
-    log.debug(JSON.stringify(metadata))
-    return res.render('person.html', {
-      data,
-      metadata,
-    })
   }
 })
 
