@@ -23,7 +23,6 @@ const envVariables = z.object({
 })
 export const env = envVariables.parse(process.env)
 log.info('Processed configuration from envirnoment variables')
-log.debug(`${JSON.stringify(env)}`)
 
 // Express configs and middleware
 app.use(express.json())
