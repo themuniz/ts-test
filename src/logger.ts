@@ -53,7 +53,7 @@ const transports = [
 const Logger = winston.createLogger({
   level: level(),
   levels,
-  defaultMeta: { server: 'grizzly-ts', node_env: process.env.NODE_ENV},
+  defaultMeta: { server: 'grizzly-ts', node_env: process.env.NODE_ENV },
   format,
   transports,
 })
@@ -61,7 +61,9 @@ const Logger = winston.createLogger({
 const worker = new Worker(
   'grizzly-logs',
   async (job) => {
-    console.log(JSON.stringify(job.data, null, 2))
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(JSON.stringify(job.data, null, 2))
+    }
   },
   {
     // Normally, we'd use the env that has been cleared by zod, but this gets run before we have a chance to do the zod validation.

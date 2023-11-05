@@ -63,15 +63,13 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
     }
     if (req.header('hx-request')) {
       metadata.partialRender = true
-      log.debug(JSON.stringify(data))
-      log.debug(JSON.stringify(metadata))
+      log.info('Pulled person table data', { data, metadata })
       return res.render('person_table.html', {
         data,
         metadata,
       })
     } else {
-      log.debug(JSON.stringify(data))
-      log.debug(JSON.stringify(metadata))
+      log.info('Pulled person table data', { data, metadata })
       return res.render('person.html', {
         data,
         metadata,
@@ -89,7 +87,7 @@ router.get('/:emplid', async (req: Request, res: Response, next: NextFunction) =
       .query`select * from uvw_workshop_masterlist where emplid = ${emplid}`
     const contractRecords = await req.app.locals.db
       .query`select * from uvw_contracts_extended where emplid = ${emplid}`
-    log.debug('Response: ', { workshopRecords, contractRecords })
+    log.info(`Pulled person data for EMPLID: ${emplid}`, { contractRecords, workshopRecords })
     return res.render('person_details.html', {
       workshopRecords: workshopRecords.recordset,
       contractRecords: contractRecords.recordset,
