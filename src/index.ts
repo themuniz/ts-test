@@ -26,8 +26,7 @@ const envVariables = z.object({
   REDIS_PORT: z.coerce.number(),
 })
 export const env = envVariables.parse(process.env)
-log.info('Processed configuration from envirnoment variables')
-log.debug(`${JSON.stringify(env)}`)
+log.info('Processed configuration from environment variables')
 
 // Express configs and middleware
 app.use(express.json())
@@ -78,15 +77,15 @@ appPool
   .connect()
   .then(function(pool) {
     app.locals.db = pool
-    log.info(`Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
+    log.info(`🚀 Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
     app.listen(env.PORT, () => {
-      log.info(`Server started on port ${env.PORT}`)
+      log.info(`🔋 Server started on port ${env.PORT}`)
     })
   })
   .catch(function(err) {
-    if (err.name === 'ConnectionError') {
-      log.error(`Error connecting to database: ${err}`)
-    } else {
-      log.error(`Error starting server on port ${env.PORT}, ${err}`)
+    if (err instanceof sql.ConnectionError) {
+      log.error(`${err.name}/${err.code}: ${err.message}`, { err })
+    } else if (err instanceof Error) {
+      log.error(`${err.name}: ${err.message}`, { err })
     }
   })
