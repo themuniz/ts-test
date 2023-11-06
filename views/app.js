@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 document.addEventListener('alpine:init', () => {
   Alpine.data('pageUtils', () => ({
     isLoggedIn: false,
@@ -46,8 +48,9 @@ document.addEventListener('alpine:init', () => {
       )
       return response.json()
     },
-    async sendNotification(message, opts) {
+    async sendNotification(message) {
       this.toastMessage = message
+      this.toastType = 'success'
       this.showToast = true
       await new Promise((res) => setTimeout(res, 3000))
       this.showToast = false
