@@ -5,10 +5,11 @@
          id="app"
          class="container overflow-x-auto z-50 p-1 mx-auto mt-4 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
         <div x-show="!isLoggedIn"
-             class="relative p-4 w-full text-white rounded-lg border border-transparent"
-             :class="alertType ==='info' ? 'bg-blue-600' : 'bg-red-600'">
+             id="messageBox"
+             class="relative p-4 w-full text-gray-900 rounded-lg border"
+             :class="alertType ==='info' ? 'bg-blue-100' : 'bg-red-100'">
             <h5 class="mb-1 font-medium tracking-tight leading-none">Alert</h5>
-            <div x-html="setupMessage" class="text-sm opacity-80"></div>
+            <div x-html="messageBoxHtml" class="text-sm opacity-80"></div>
         </div>
         <div x-show="isLoggedIn">
             <div x-cloak class="relative z-50 w-full h-auto">
@@ -91,7 +92,5 @@
             </div>
         </div>
     </div>
-    <script>
-        {% include 'app.js' %}
-    </script>
+    <script>{% include 'app.js' %}</script>
 {% endblock %}

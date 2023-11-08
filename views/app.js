@@ -1,10 +1,13 @@
 /* eslint-env browser */
+/* global Alpine, axios */
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('pageUtils', () => ({
     isLoggedIn: false,
-    setupMessage: '',
-    alertType: 'info',
+    messageBoxHtml: '',
+    messageBoxType: 'info',
+    loginUsername: '',
+    loginPassword: '',
     showToast: false,
     toastMessage: '',
     toastTitle: 'Success',
@@ -13,40 +16,64 @@ document.addEventListener('alpine:init', () => {
     slideOverOpen: false,
     user: {},
     async init() {
-      const testUser = { token: 122 }
-      localStorage.setItem('user', JSON.stringify(testUser))
       const user = localStorage.getItem('user')
       if (!user) {
-        this.alertType = 'error'
-        this.setupMessage =
-          'You are not logged in. Please go to the login screen, and then refresh this screen.'
+        this.messageBoxType = 'error'
+        this.messageBoxHtml =
+          '<p>You are not logged in. Please go to the <a class="text-blue-700" href="https://ofditprojects.sps.cuny.edu/" target="_blank">login</a> page, and then refresh this page after successfully logging in.</p><div><label for="username">Username:</label><input id="username" type="text" x-model="loginUsername"/><label for="password">Password:</label><input id="password" type="password" x-model="loginPassword"/><button @click="login">Login</button>'
       } else {
         this.user = JSON.parse(user)
-        this.setupMessage = 'Checking credentials'
+        this.messageBoxHtml = 'Checking credentials'
         this.isLoggedIn = await this.checkToken(this.user.token)
-        if (!this.isLoggedIn) {
-          this.alertType = 'error'
-          this.setupMessage =
-            'Your credential check failed. Please go to the <a href="https://ofditprojects.sps.cuny.edu/login" target="_blank">Login</a> page, and then return to refresh this screen.'
-        } else {
-          this.isLoggedIn = true
-          const app = document.getElementById('app')
-          app.setAttribute(
-            'hx-headers',
-            `{"Authentication": "Bearer: ${this.user.token}"}`,
-          )
-        }
+      }
+      if (this.isLoggedIn) {
+        const app = document.getElementById('app')
+        app.setAttribute(
+          'hx-headers',
+          `{"Authentication": "Bearer: ${this.user.token}"}`,
+        )
+      }
+    },
+    async login() {
+      try {
+        const response = await axios({
+          url: 'https://ofditprojects.sps.cuny.edu/api/login',
+          method: 'post',
+          data: {
+            username: this.loginUsername,
+            password: this.loginPassword,
+          },
+        })
+        this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+        this.sendNotification(
+          `Greetings ${this.user.first_name}, you have successfully logged in.`,
+        )
+      } catch (err) {
+        console.error(err)
       }
     },
     async checkToken(token) {
-      const response = await fetch(
-        'https://ofditprojects.sps.cuny.edu/check-token',
-        {
+      try {
+        const response = await axios({
+          url: 'https://ofditprojects.sps.cuny.edu/api/login/check-token',
           method: 'post',
-          body: JSON.stringify({ user_token: token}),
-        },
-      )
-      return response.json()
+          data: {
+            user_token: token,
+          },
+        })
+        this.user = response.data
+        localStorage.setItem('user', JSON.stringify(response.data))
+        this.sendNotification(
+          `Greetings ${this.user.first_name}, you have successfully logged in.`,
+        )
+        return true
+      } catch (err) {
+        this.messageBoxType = 'error'
+        this.messageBoxHtml =
+          'Your credential check failed. Please go to the <a class="text-blue-500" href="https://ofditprojects.sps.cuny.edu/" target="_blank">Login</a> page, and then return to refresh this page after successfully logging in.'
+      }
+      return false
     },
     async sendNotification(message) {
       this.toastMessage = message
