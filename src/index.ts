@@ -1,7 +1,7 @@
 import express, {
-  type NextFunction,
-  type Response,
-  type Request,
+    type NextFunction,
+    type Response,
+    type Request,
 } from 'express'
 import { z } from 'zod'
 import 'dotenv/config'
@@ -16,17 +16,17 @@ const app = express()
 
 // Config schema
 const envVariables = z.object({
-  NODE_ENV: z.enum(['production', 'development', 'testing']),
-  PORT: z.coerce.number(),
-  DB_DATABASE: z.string(),
-  DB_SERVER: z.string(),
-  DB_USER: z.string(),
-  DB_PASSWORD: z.string(),
-  REDIS_SERVER: z.string(),
-  REDIS_PORT: z.coerce.number(),
+    NODE_ENV: z.enum(['production', 'development']),
+    PORT: z.coerce.number(),
+    DB_DATABASE: z.string(),
+    DB_SERVER: z.string(),
+    DB_USER: z.string(),
+    DB_PASSWORD: z.string(),
+    REDIS_SERVER: z.string(),
+    REDIS_PORT: z.coerce.number(),
 })
 export const env = envVariables.parse(process.env)
-log.info('Processed configuration from environment variables', {environment: env})
+log.info('Processed configuration from environment variables', { environment: env })
 
 // Express configs and middleware
 app.use(express.json())
@@ -36,8 +36,8 @@ app.use(express.static('assets'))
 
 // Templating
 nunjucks.configure('views', {
-  express: app,
-  noCache: env.NODE_ENV === 'production' ? false : true,
+    express: app,
+    noCache: env.NODE_ENV === 'production' ? false : true,
 })
 
 // Routes
@@ -46,11 +46,11 @@ app.use('/quick-add', QuickAddRouter)
 
 // Master error function
 app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
-  if (err instanceof Error) {
-    const errorMessage = `${err.name}: ${err.message}`
-    log.error(errorMessage, { error_details: err })
-    res.status(500).send(errorMessage)
-  }
+    if (err instanceof Error) {
+        const errorMessage = `${err.name}: ${err.message}`
+        log.error(errorMessage, { error_details: err })
+        res.status(500).send(errorMessage)
+    }
 })
 
 // Server startup
@@ -58,34 +58,34 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
 
 // DB config
 const dbConfig = {
-  database: env.DB_DATABASE,
-  server: env.DB_SERVER,
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  pool: {
-    min: 0,
-    max: 10,
-  },
-  options: {
-    trustServerCertificate: true,
-  },
+    database: env.DB_DATABASE,
+    server: env.DB_SERVER,
+    user: env.DB_USER,
+    password: env.DB_PASSWORD,
+    pool: {
+        min: 0,
+        max: 10,
+    },
+    options: {
+        trustServerCertificate: true,
+    },
 }
 // TODO: refactor this into a proper function
 const { ConnectionPool } = sql
 const appPool = new ConnectionPool(dbConfig)
 appPool
-  .connect()
-  .then(function(pool) {
-    app.locals.db = pool
-    log.info(`🚀 Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
-    app.listen(env.PORT, () => {
-      log.info(`🔋 Server started on port ${env.PORT}`)
+    .connect()
+    .then(function(pool) {
+        app.locals.db = pool
+        log.info(`🚀 Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
+        app.listen(env.PORT, () => {
+            log.info(`🔋 Server started on port ${env.PORT}`)
+        })
     })
-  })
-  .catch(function(err) {
-    if (err instanceof sql.ConnectionError) {
-      log.error(`${err.name}/${err.code}: ${err.message}`, { err })
-    } else if (err instanceof Error) {
-      log.error(`${err.name}: ${err.message}`, { err })
-    }
-  })
+    .catch(function(err) {
+        if (err instanceof sql.ConnectionError) {
+            log.error(`${err.name}/${err.code}: ${err.message}`, { err })
+        } else if (err instanceof Error) {
+            log.error(`${err.name}: ${err.message}`, { err })
+        }
+    })
