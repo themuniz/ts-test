@@ -2,12 +2,10 @@
 {% block content
     %}
     <div x-data="pageUtils"
-         id="app"
-         class="container">
+         id="app">
         <div x-show="!isLoggedIn"
              id="messageBox"
              class="alert alert-warning"
-             :class="messageBoxType ==='info' ? 'bg-blue-100' : 'bg-red-100'"
              role="alert"
              >
             <h5>Alert</h5>
@@ -88,9 +86,9 @@
                     </div>
                 </div>
             </div>
-            <div class="p-5 mb-5 text-3xl font-semibold">Persons</div>
-            <div class="overflow-auto p-3 mx-5 bg-white rounded-md border border-gray-300">
-                <div id="person-table">{% include "person_table.html" %}</div>
+            <div class="display-4 fw-semibold">Persons</div>
+            <div class="card">
+                <div id="person-table" class="card-body">{% include "person_table.html" %}</div>
             </div>
         </div>
     </div>
