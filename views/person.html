@@ -3,13 +3,15 @@
     %}
     <div x-data="pageUtils"
          id="app"
-         class="container overflow-x-auto z-50 p-1 mx-auto mt-4 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+         class="container">
         <div x-show="!isLoggedIn"
              id="messageBox"
-             class="relative p-4 w-full text-gray-900 rounded-lg border"
-             :class="messageBoxType ==='info' ? 'bg-blue-100' : 'bg-red-100'">
-            <h5 class="mb-1 font-medium tracking-tight leading-none">Alert</h5>
-            <div x-html="messageBoxHtml" class="text-sm opacity-80"></div>
+             class="alert alert-warning"
+             :class="messageBoxType ==='info' ? 'bg-blue-100' : 'bg-red-100'"
+             role="alert"
+             >
+            <h5>Alert</h5>
+            <div x-html="messageBoxHtml"></div>
         </div>
         <div x-cloak
              x-show="showToast"
