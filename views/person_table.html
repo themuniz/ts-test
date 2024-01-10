@@ -18,8 +18,8 @@
         </div>
     </div>
 </form>
-<div class="d-flex justify-content-end">
-    <div class="text-center">{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
+<div class="d-flex justify-content-center justify-content-md-end">
+    <div>{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
 </div>
 <table class="w-full table-fixed">
     <tbody class="divide-y">
@@ -54,4 +54,6 @@
         {% endfor %}
     </tbody>
 </table>
-<div class="flex justify-end space-x-1 text-center">{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
+<div class="d-flex justify-content-center justify-content-md-end">
+    <div>{{ m.pagination(metadata.page, metadata.reachedEnd) }}</div>
+</div>
