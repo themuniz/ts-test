@@ -1,28 +1,16 @@
 {% extends 'base.html' %} {% set title = "Grizzly: Persons" %}
 {% block content
     %}
-    <div x-data="pageUtils"
+    <div 
          id="app">
         <div x-show="!isLoggedIn"
+             x-cloak
              id="messageBox"
              class="alert alert-warning"
              role="alert"
              >
             <h5>Alert</h5>
             <div x-html="messageBoxHtml"></div>
-        </div>
-        <div x-cloak
-             x-show="showToast"
-             class="fixed right-4 bottom-4 p-4 w-72 h-32 rounded transition-transform transform-gpu duration-400 ease bg-slate-700"
-             :class="toastType ==='success' ? 'border-l-8 border-green-500' : 'border-l-8 border-red-500'"
-             x-transition:enter-start="translate-y-full"
-             x-transition:enter-end="translate-y-0"
-             x-transition:leave-start="translate-y-0"
-             x-transition:leave-end="translate-y-full">
-            <p class="text-white">
-                <span class="font-semibold leading-relaxed uppercase" x-text="toastTitle"></span>
-            </p>
-            <p class="mt-2 text-sm text-white" x-html="toastMessage"></p>
         </div>
         <div x-show="isLoggedIn">
             <div x-cloak class="relative z-50 w-full h-auto">

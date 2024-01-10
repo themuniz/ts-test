@@ -15,8 +15,13 @@ document.addEventListener('alpine:init', () => {
         limit: 10,
         slideOverOpen: false,
         user: {},
+        toastList: [],
         async init() {
             const user = localStorage.getItem('user')
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            this.toastList = toastElList.map(function(toastEl) {
+                return new bootstrap.Toast(toastEl) // No need for options; use the default options
+            });
             if (!user) {
                 this.setLoginForm()
             } else {
@@ -106,15 +111,11 @@ document.addEventListener('alpine:init', () => {
             this.toastMessage = message
             this.toastType = messageType
             this.toastTitle = toastTitle
-            this.showToast = true
-            await new Promise((res) => setTimeout(res, 3000))
-            this.showToast = false
-            this.toastMessage = ''
-            this.toastTitle = ''
+            this.toastList.forEach(toast => toast.show())
         },
         async copyToClipboard(value) {
             await navigator.clipboard.writeText(value)
-            this.sendNotification(`Wrote <em>${value}</em> to the clipboard.`)
+            this.sendNotification(`Wrote <strong>${value}</strong> to the clipboard.`)
         },
     }))
 })
