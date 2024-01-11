@@ -52,7 +52,7 @@
                         </svg>
                     </span>
                 </div>
-                <button class="btn btn-outline-success text-success" @click="slideOverOpen=true"
+                <button class="btn btn-sm btn-outline-success" @click="slideOverOpen=true"
                     hx-get="http://localhost:40201/person/{{ person.emplid }}" hx-swap="outer"
                     hx-target="#details-div">Details</button>
                 {% endfor %}
