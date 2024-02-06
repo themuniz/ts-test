@@ -1,18 +1,35 @@
+import { exec } from 'child_process'
+import cors from 'cors'
+import 'dotenv/config'
 import express, {
+    type Express,
     type NextFunction,
     type Response,
     type Request,
 } from 'express'
-import { z } from 'zod'
-import 'dotenv/config'
-import nunjucks from 'nunjucks'
-import log from './logger.js'
 import sql from 'mssql'
+import nunjucks from 'nunjucks'
+import { z } from 'zod'
+import log from './logger.js'
 import { PersonRouter } from './person_routes.js'
 import { QuickAddRouter } from './quick_add_router.js'
-import cors from 'cors'
 
-const app = express()
+export const app: Express = express()
+
+// Grab version from git tag
+export const version = exec("git describe --tags", (error, stdout, stderr) => {
+    if (error) {
+        log.error(`${error.message}`)
+        return 'N/A'
+    }
+    if (stderr) {
+        log.error(`${stderr}`)
+        return 'N/A'
+    }
+    const version = stdout.trim()
+    log.info(`📚 Grizzly API version: ${version}`)
+    return version
+})
 
 // Config schema
 const envVariables = z.object({
@@ -45,7 +62,7 @@ app.use('/person', PersonRouter)
 app.use('/quick-add', QuickAddRouter)
 
 // Master error function
-app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     if (err instanceof Error) {
         const errorMessage = `${err.name}: ${err.message}`
         log.error(errorMessage, { error_details: err })
@@ -53,7 +70,7 @@ app.use((err: unknown, req: Request, res: Response, next: NextFunction) => {
     }
 })
 
-// Server startup
+// Database
 // We attempt to connect to the DB pool, store the pool in the app's locals, and then use that *single* pool throughout the life-cycle of the app
 
 // DB config
@@ -70,19 +87,15 @@ const dbConfig = {
         trustServerCertificate: true,
     },
 }
-// TODO: refactor this into a proper function
 const { ConnectionPool } = sql
 const appPool = new ConnectionPool(dbConfig)
 appPool
     .connect()
-    .then(function(pool) {
+    .then((pool) => {
         app.locals.db = pool
         log.info(`🚀 Connected to database ${env.DB_DATABASE}@${env.DB_SERVER}`)
-        app.listen(env.PORT, () => {
-            log.info(`🔋 Server started on port ${env.PORT}`)
-        })
     })
-    .catch(function(err) {
+    .catch((err) => {
         if (err instanceof sql.ConnectionError) {
             log.error(`${err.name}/${err.code}: ${err.message}`, { err })
         } else if (err instanceof Error) {
