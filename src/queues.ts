@@ -15,6 +15,9 @@ const callLogQueue = () => {
                     type: 'exponential',
                     delay: 30000,
                 },
+                removeOnComplete: {
+                    age: 30000
+                }
             },
         })
         console.log(
