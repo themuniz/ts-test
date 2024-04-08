@@ -24,11 +24,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
   // TODO: move to validation stage
   if (req.query.page) {
     const pageAsString = String(req.query.page)
-    metadata.page = parseInt(pageAsString)
+    metadata.page = Number.parseInt(pageAsString)
   }
   if (req.query.limit) {
     const limitAsString = String(req.query.limit)
-    metadata.limit = parseInt(limitAsString)
+    metadata.limit = Number.parseInt(limitAsString)
   }
   if (req.query.search) {
     metadata.searchTerm = String(req.query.search)
@@ -68,13 +68,12 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
         data,
         metadata,
       })
-    } else {
-      log.info('Pulled person table data', { data, metadata })
-      return res.render('person.html', {
-        data,
-        metadata,
-      })
     }
+    log.info('Pulled person table data', { data, metadata })
+    return res.render('person.html', {
+      data,
+      metadata,
+    })
   } catch (err) {
     next(err)
   }

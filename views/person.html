@@ -1,28 +1,16 @@
 {% extends 'base.html' %} {% set title = "Grizzly: Persons" %}
 {% block content
     %}
-    <div x-data="pageUtils"
-         id="app"
-         class="container overflow-x-auto z-50 p-1 mx-auto mt-4 max-w-lg sm:max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl">
+    <div 
+         id="app">
         <div x-show="!isLoggedIn"
+             x-cloak
              id="messageBox"
-             class="relative p-4 w-full text-gray-900 rounded-lg border"
-             :class="messageBoxType ==='info' ? 'bg-blue-100' : 'bg-red-100'">
-            <h5 class="mb-1 font-medium tracking-tight leading-none">Alert</h5>
-            <div x-html="messageBoxHtml" class="text-sm opacity-80"></div>
-        </div>
-        <div x-cloak
-             x-show="showToast"
-             class="fixed right-4 bottom-4 p-4 w-72 h-32 rounded transition-transform transform-gpu duration-400 ease bg-slate-700"
-             :class="toastType ==='success' ? 'border-l-8 border-green-500' : 'border-l-8 border-red-500'"
-             x-transition:enter-start="translate-y-full"
-             x-transition:enter-end="translate-y-0"
-             x-transition:leave-start="translate-y-0"
-             x-transition:leave-end="translate-y-full">
-            <p class="text-white">
-                <span class="font-semibold leading-relaxed uppercase" x-text="toastTitle"></span>
-            </p>
-            <p class="mt-2 text-sm text-white" x-html="toastMessage"></p>
+             class="alert alert-warning"
+             role="alert"
+             >
+            <h5>Alert</h5>
+            <div x-html="messageBoxHtml"></div>
         </div>
         <div x-show="isLoggedIn">
             <div x-cloak class="relative z-50 w-full h-auto">
@@ -86,9 +74,9 @@
                     </div>
                 </div>
             </div>
-            <div class="p-5 mb-5 text-3xl font-semibold">Persons</div>
-            <div class="overflow-auto p-3 mx-5 bg-white rounded-md border border-gray-300">
-                <div id="person-table">{% include "person_table.html" %}</div>
+            <div class="display-4 fw-semibold">Persons</div>
+            <div class="card">
+                <div id="person-table" class="card-body">{% include "person_table.html" %}</div>
             </div>
         </div>
     </div>
