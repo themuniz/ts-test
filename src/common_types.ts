@@ -1,0 +1,17 @@
+export type User = {
+    active_until_date?: string,
+    email_address?: string,
+    extension?: number,
+    first_name: string,
+    full_name: string,
+    gmail_address?: string,
+    id: number,
+    is_active: boolean,
+    is_grizzly_admin: boolean,
+    is_grizzly_user: boolean,
+    job_title: string,
+    last_name: string,
+    program: string,
+    program_id: number,
+    token: string,
+}
