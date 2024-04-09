@@ -13,6 +13,7 @@ import { z } from 'zod'
 import log from './logger.js'
 import { PersonRouter } from './person_routes.js'
 import { QuickAddRouter } from './quick_add_router.js'
+import { CoursePrepRouter } from './coursePrep_routes.js'
 
 export const app: Express = express()
 
@@ -59,6 +60,7 @@ nunjucks.configure('views', {
 
 // Routes
 app.use('/person', PersonRouter)
+app.use('/course-prep', CoursePrepRouter)
 app.use('/quick-add', QuickAddRouter)
 
 // Master error function
