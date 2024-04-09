@@ -36,7 +36,7 @@ const authorizeAndAuthenticateUser = (req: Request, res: Response, next: NextFun
 // Routes
 router.get('/', authorizeAndAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   const metadata: SectionSearchMetadata = {
-    term: String(req.query.term) || 'Spring 2024',
+    term: String(req.query.term) ?? 'Spring 2024',
     filter: String(req.query.filter),
     search: String(req.query.search),
     recordCount: 0,
@@ -57,7 +57,7 @@ router.get('/', authorizeAndAuthenticateUser, async (req: Request, res: Response
     }
     // now lets authorize who can see these sections
     // TODO: figure out with section list we are on and show courses based on that
-    let sections: SectionRecord[] = response.recordset[0]
+    let sections: SectionRecord[] = response.recordset
     metadata.recordCount = response.rowsAffected[0] ?? 0
     if (metadata.recordCount === 0) {
       return res.render('no_sections.html')
@@ -69,33 +69,16 @@ router.get('/', authorizeAndAuthenticateUser, async (req: Request, res: Response
     }
     // TODO: filter the sections
     if (req.header('hx-request')) {
-      log.info(`${res.locals.user.full_name} pulled section data`, { sections, metadata })
+      log.info(`${res.locals.user.full_name} pulled section data`, { metadata })
       return res.render('coursePrep_section_list.html', {
         sections,
         metadata,
       })
     }
-    log.info(`${res.locals.user.full_name} pulled section data`, { sections, metadata })
+    log.info(`${res.locals.user.full_name} pulled section data`, { metadata })
     return res.render('coursePrep.html', {
       sections,
       metadata,
-    })
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.get('/:emplid', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const emplid = req.params.emplid
-    const workshopRecords = await req.app.locals.db
-      .query`select * from uvw_workshop_masterlist where emplid = ${emplid}`
-    const contractRecords = await req.app.locals.db
-      .query`select * from uvw_contracts_extended where emplid = ${emplid}`
-    log.info(`Pulled person data for EMPLID: ${emplid}`, { contractRecords, workshopRecords })
-    return res.render('person_details.html', {
-      workshopRecords: workshopRecords.recordset,
-      contractRecords: contractRecords.recordset,
     })
   } catch (err) {
     next(err)

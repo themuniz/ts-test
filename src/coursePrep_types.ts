@@ -22,7 +22,7 @@ const SectionRecord = z.object({
     course_title: z.string(),
     session: z.string(),
     instructor_name: z.string(),
-    sourse_course_id: z.string().optional(),
+    source_course_id: z.string().optional(),
     who_copies: z.enum(['AD', 'OFDIT', 'Instructor']).optional(),
     status: z.string().optional(),
     resp_party: z.string().optional(),
