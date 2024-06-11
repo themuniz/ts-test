@@ -13,6 +13,8 @@ document.addEventListener('alpine:init', () => {
         toastTitle: 'Success',
         toastType: 'success',
         limit: 10,
+        filter: '',
+        term: '',
         slideOverOpen: false,
         user: {},
         toastList: [],
